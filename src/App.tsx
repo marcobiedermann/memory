@@ -18,6 +18,31 @@ interface DifficultyConfig {
   gridCols: number;
 }
 
+const difficultyConfig: Record<Difficulty, DifficultyConfig> = {
+  easy: { pairs: 8, gridCols: 4 },
+  medium: { pairs: 12, gridCols: 6 },
+  hard: { pairs: 16, gridCols: 8 },
+};
+
+const emojis = [
+  "🐶",
+  "🐱",
+  "🐭",
+  "🐹",
+  "🐰",
+  "🦊",
+  "🐻",
+  "🐼",
+  "🦁",
+  "🐯",
+  "🐸",
+  "🐵",
+  "🦄",
+  "🐷",
+  "🦊",
+  "🦒",
+];
+
 function App() {
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
@@ -27,31 +52,6 @@ function App() {
   const [isPaused, setIsPaused] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
 
-  const difficultyConfig: Record<Difficulty, DifficultyConfig> = {
-    easy: { pairs: 8, gridCols: 4 },
-    medium: { pairs: 12, gridCols: 6 },
-    hard: { pairs: 16, gridCols: 8 },
-  };
-
-  const emojis = [
-    "🐶",
-    "🐱",
-    "🐭",
-    "🐹",
-    "🐰",
-    "🦊",
-    "🐻",
-    "🐼",
-    "🦁",
-    "🐯",
-    "🐸",
-    "🐵",
-    "🦄",
-    "🐷",
-    "🦊",
-    "🦒",
-  ];
-
   useEffect(() => {
     initializeGame();
   }, [difficulty]);
@@ -59,14 +59,18 @@ function App() {
   useEffect(() => {
     let timer: number | undefined;
     if (isPlaying && !isPaused) {
-      timer = window.setInterval(() => {
-        setTime((prev) => prev + 1);
-      }, 1000);
+      timer = window.setInterval(() => setTime((prev) => prev + 1), 1000);
     }
     return () => {
       if (timer) clearInterval(timer);
     };
   }, [isPlaying, isPaused]);
+
+  useEffect(() => {
+    if (cards.length > 0 && cards.every((card) => card.isMatched)) {
+      setIsPlaying(false);
+    }
+  }, [cards]);
 
   function formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
@@ -94,8 +98,13 @@ function App() {
   }
 
   function handleCardClick(id: number) {
-    if (isPaused || flippedCards.length === 2) return;
-    if (cards[id].isMatched || cards[id].isFlipped) return;
+    if (
+      isPaused ||
+      flippedCards.length === 2 ||
+      cards[id].isMatched ||
+      cards[id].isFlipped
+    )
+      return;
 
     const newCards = [...cards];
     newCards[id].isFlipped = true;
@@ -131,44 +140,24 @@ function App() {
     setDifficulty(newDifficulty);
   }
 
-  const isGameComplete =
-    cards.length > 0 && cards.every((card) => card.isMatched);
-
-  useEffect(() => {
-    if (isGameComplete) {
-      setIsPlaying(false);
-    }
-  }, [isGameComplete]);
-
   return (
     <div className="game-container">
       <h1>Memory Game</h1>
       <div className="difficulty-selector">
-        <button
-          onClick={() => handleDifficultyChange("easy")}
-          className={`difficulty-btn ${difficulty === "easy" ? "active" : ""}`}
-        >
-          Easy
-        </button>
-        <button
-          onClick={() => handleDifficultyChange("medium")}
-          className={`difficulty-btn ${
-            difficulty === "medium" ? "active" : ""
-          }`}
-        >
-          Medium
-        </button>
-        <button
-          onClick={() => handleDifficultyChange("hard")}
-          className={`difficulty-btn ${difficulty === "hard" ? "active" : ""}`}
-        >
-          Hard
-        </button>
+        {(["easy", "medium", "hard"] as Difficulty[]).map((level) => (
+          <button
+            key={level}
+            onClick={() => handleDifficultyChange(level)}
+            className={`difficulty-btn ${difficulty === level ? "active" : ""}`}
+          >
+            {level.charAt(0).toUpperCase() + level.slice(1)}
+          </button>
+        ))}
       </div>
       <div className="game-info">
         <p>Time: {formatTime(time)}</p>
         <p>Moves: {moves}</p>
-        {isPlaying && !isGameComplete && (
+        {isPlaying && !cards.every((card) => card.isMatched) && (
           <button
             onClick={togglePause}
             className={isPaused ? "resume" : "pause"}
@@ -189,7 +178,7 @@ function App() {
           <Card key={card.id} card={card} onClick={handleCardClick} />
         ))}
       </div>
-      {isGameComplete && (
+      {cards.every((card) => card.isMatched) && (
         <WinMessage moves={moves} time={time} formatTime={formatTime} />
       )}
       {isPaused && <PauseOverlay togglePause={togglePause} />}
