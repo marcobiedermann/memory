@@ -24,8 +24,8 @@ interface DifficultyConfig {
 
 const difficultyConfig: Record<Difficulty, DifficultyConfig> = {
   easy: { pairs: 8, gridCols: 4 },
-  medium: { pairs: 12, gridCols: 6 },
-  hard: { pairs: 16, gridCols: 8 },
+  medium: { pairs: 18, gridCols: 6 },
+  hard: { pairs: 32, gridCols: 8 },
 };
 
 const emojis = [
@@ -43,8 +43,24 @@ const emojis = [
   "🐵",
   "🦄",
   "🐷",
-  "🦊",
   "🦒",
+  "🐔",
+  "🐧",
+  "🐦",
+  "🐤",
+  "🐣",
+  "🦆",
+  "🦅",
+  "🦉",
+  "🦇",
+  "🐺",
+  "🐗",
+  "🐴",
+  "🦓",
+  "🦌",
+  "🐮",
+  "🐂",
+  "🐃",
 ];
 
 function generateCards(numberOfPairs: number): Card[] {
@@ -246,7 +262,6 @@ function App() {
         className={`card-grid ${isPaused ? "paused" : ""}`}
         style={{
           gridTemplateColumns: `repeat(${difficultyConfig[difficulty].gridCols}, 1fr)`,
-          maxWidth: `${difficultyConfig[difficulty].gridCols * 100}px`,
         }}
       >
         {cards.map((card) => (
