@@ -50,6 +50,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>("easy");
+  const [matches, setMatches] = useState(0);
 
   useEffect(() => {
     initializeGame();
@@ -93,6 +94,7 @@ function App() {
     setTime(0);
     setIsPlaying(true);
     setIsPaused(false);
+    setMatches(0);
   }
 
   function handleCardClick(id: number) {
@@ -123,6 +125,7 @@ function App() {
               : card
           )
         );
+        setMatches((prev) => prev + 1);
       } else {
         setTimeout(() => {
           setCards(
@@ -162,6 +165,7 @@ function App() {
       <div className="game-info">
         <p>Time: {formatTime(time)}</p>
         <p>Moves: {moves}</p>
+        <p>Matches: {matches}</p>
         {isPlaying && !cards.every((card) => card.isMatched) && (
           <button
             onClick={togglePause}
