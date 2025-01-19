@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import "./App.css";
+import Card from "./components/Card";
+import PauseOverlay from "./components/PauseOverlay";
+import WinMessage from "./components/WinMessage";
 
 interface Card {
   id: number;
@@ -183,31 +186,13 @@ function App() {
         }}
       >
         {cards.map((card) => (
-          <div
-            key={card.id}
-            className={`card ${card.isFlipped ? "flipped" : ""} ${
-              card.isMatched ? "matched" : ""
-            }`}
-            onClick={() => handleCardClick(card.id)}
-          >
-            <div className="card-inner">
-              <div className="card-front">?</div>
-              <div className="card-back">{card.value}</div>
-            </div>
-          </div>
+          <Card key={card.id} card={card} onClick={handleCardClick} />
         ))}
       </div>
       {isGameComplete && (
-        <div className="win-message">
-          Congratulations! You won in {moves} moves and {formatTime(time)}!
-        </div>
+        <WinMessage moves={moves} time={time} formatTime={formatTime} />
       )}
-      {isPaused && (
-        <div className="pause-overlay">
-          <h2>Game Paused</h2>
-          <button onClick={togglePause}>Resume</button>
-        </div>
-      )}
+      {isPaused && <PauseOverlay togglePause={togglePause} />}
     </div>
   );
 }
