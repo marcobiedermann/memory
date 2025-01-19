@@ -1,5 +1,3 @@
-import React from "react";
-
 interface CardProps {
   card: {
     id: number;
@@ -10,7 +8,7 @@ interface CardProps {
   onClick: (id: number) => void;
 }
 
-const Card: React.FC<CardProps> = ({ card, onClick }) => {
+function Card({ card, onClick }: CardProps) {
   return (
     <div
       key={card.id}
@@ -25,6 +23,6 @@ const Card: React.FC<CardProps> = ({ card, onClick }) => {
       </div>
     </div>
   );
-};
+}
 
 export default Card;

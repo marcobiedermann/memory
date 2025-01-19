@@ -68,13 +68,13 @@ function App() {
     };
   }, [isPlaying, isPaused]);
 
-  const formatTime = (seconds: number): string => {
+  function formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
+  }
 
-  const initializeGame = () => {
+  function initializeGame() {
     const { pairs } = difficultyConfig[difficulty];
     const selectedEmojis = emojis.slice(0, pairs);
     const duplicatedEmojis = [...selectedEmojis, ...selectedEmojis];
@@ -91,9 +91,9 @@ function App() {
     setTime(0);
     setIsPlaying(true);
     setIsPaused(false);
-  };
+  }
 
-  const handleCardClick = (id: number) => {
+  function handleCardClick(id: number) {
     if (isPaused || flippedCards.length === 2) return;
     if (cards[id].isMatched || cards[id].isFlipped) return;
 
@@ -121,15 +121,15 @@ function App() {
         }, 1000);
       }
     }
-  };
+  }
 
-  const togglePause = () => {
+  function togglePause() {
     setIsPaused((prev) => !prev);
-  };
+  }
 
-  const handleDifficultyChange = (newDifficulty: Difficulty) => {
+  function handleDifficultyChange(newDifficulty: Difficulty) {
     setDifficulty(newDifficulty);
-  };
+  }
 
   const isGameComplete =
     cards.length > 0 && cards.every((card) => card.isMatched);
