@@ -12,12 +12,32 @@ function App() {
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
+  const [time, setTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const emojis = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼"];
 
   useEffect(() => {
     initializeGame();
   }, []);
+
+  useEffect(() => {
+    let timer: number | undefined;
+    if (isPlaying) {
+      timer = window.setInterval(() => {
+        setTime((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isPlaying]);
+
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
 
   const initializeGame = () => {
     const duplicatedEmojis = [...emojis, ...emojis];
@@ -31,6 +51,8 @@ function App() {
     setCards(newCards);
     setFlippedCards([]);
     setMoves(0);
+    setTime(0);
+    setIsPlaying(true);
   };
 
   const handleCardClick = (id: number) => {
@@ -66,10 +88,17 @@ function App() {
   const isGameComplete =
     cards.length > 0 && cards.every((card) => card.isMatched);
 
+  useEffect(() => {
+    if (isGameComplete) {
+      setIsPlaying(false);
+    }
+  }, [isGameComplete]);
+
   return (
     <div className="game-container">
       <h1>Memory Game</h1>
       <div className="game-info">
+        <p>Time: {formatTime(time)}</p>
         <p>Moves: {moves}</p>
         <button onClick={initializeGame}>New Game</button>
       </div>
@@ -91,7 +120,7 @@ function App() {
       </div>
       {isGameComplete && (
         <div className="win-message">
-          Congratulations! You won in {moves} moves!
+          Congratulations! You won in {moves} moves and {formatTime(time)}!
         </div>
       )}
     </div>
