@@ -8,7 +8,9 @@ interface CardProps {
   onClick: (id: number) => void;
 }
 
-function Card({ card, onClick }: CardProps) {
+function Card(props: CardProps) {
+  const { card, onClick } = props;
+
   return (
     <div
       key={card.id}

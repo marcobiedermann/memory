@@ -2,7 +2,8 @@ interface PauseOverlayProps {
   togglePause: () => void;
 }
 
-function PauseOverlay({ togglePause }: PauseOverlayProps) {
+function PauseOverlay(props: PauseOverlayProps) {
+  const { togglePause } = props;
   return (
     <div className="pause-overlay">
       <h2>Game Paused</h2>
