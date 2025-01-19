@@ -8,6 +8,13 @@ interface Card {
   isMatched: boolean;
 }
 
+type Difficulty = "easy" | "medium" | "hard";
+
+interface DifficultyConfig {
+  pairs: number;
+  gridCols: number;
+}
+
 function App() {
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
@@ -15,12 +22,36 @@ function App() {
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
 
-  const emojis = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼"];
+  const difficultyConfig: Record<Difficulty, DifficultyConfig> = {
+    easy: { pairs: 8, gridCols: 4 },
+    medium: { pairs: 12, gridCols: 6 },
+    hard: { pairs: 16, gridCols: 8 },
+  };
+
+  const emojis = [
+    "🐶",
+    "🐱",
+    "🐭",
+    "🐹",
+    "🐰",
+    "🦊",
+    "🐻",
+    "🐼",
+    "🦁",
+    "🐯",
+    "🐸",
+    "🐵",
+    "🦄",
+    "🐷",
+    "🦊",
+    "🦒",
+  ];
 
   useEffect(() => {
     initializeGame();
-  }, []);
+  }, [difficulty]);
 
   useEffect(() => {
     let timer: number | undefined;
@@ -41,7 +72,9 @@ function App() {
   };
 
   const initializeGame = () => {
-    const duplicatedEmojis = [...emojis, ...emojis];
+    const { pairs } = difficultyConfig[difficulty];
+    const selectedEmojis = emojis.slice(0, pairs);
+    const duplicatedEmojis = [...selectedEmojis, ...selectedEmojis];
     const shuffledEmojis = duplicatedEmojis.sort(() => Math.random() - 0.5);
     const newCards = shuffledEmojis.map((emoji, index) => ({
       id: index,
@@ -91,6 +124,10 @@ function App() {
     setIsPaused((prev) => !prev);
   };
 
+  const handleDifficultyChange = (newDifficulty: Difficulty) => {
+    setDifficulty(newDifficulty);
+  };
+
   const isGameComplete =
     cards.length > 0 && cards.every((card) => card.isMatched);
 
@@ -103,6 +140,28 @@ function App() {
   return (
     <div className="game-container">
       <h1>Memory Game</h1>
+      <div className="difficulty-selector">
+        <button
+          onClick={() => handleDifficultyChange("easy")}
+          className={`difficulty-btn ${difficulty === "easy" ? "active" : ""}`}
+        >
+          Easy
+        </button>
+        <button
+          onClick={() => handleDifficultyChange("medium")}
+          className={`difficulty-btn ${
+            difficulty === "medium" ? "active" : ""
+          }`}
+        >
+          Medium
+        </button>
+        <button
+          onClick={() => handleDifficultyChange("hard")}
+          className={`difficulty-btn ${difficulty === "hard" ? "active" : ""}`}
+        >
+          Hard
+        </button>
+      </div>
       <div className="game-info">
         <p>Time: {formatTime(time)}</p>
         <p>Moves: {moves}</p>
@@ -116,7 +175,13 @@ function App() {
         )}
         <button onClick={initializeGame}>New Game</button>
       </div>
-      <div className={`card-grid ${isPaused ? "paused" : ""}`}>
+      <div
+        className={`card-grid ${isPaused ? "paused" : ""}`}
+        style={{
+          gridTemplateColumns: `repeat(${difficultyConfig[difficulty].gridCols}, 1fr)`,
+          maxWidth: `${difficultyConfig[difficulty].gridCols * 100}px`,
+        }}
+      >
         {cards.map((card) => (
           <div
             key={card.id}
