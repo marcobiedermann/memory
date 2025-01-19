@@ -45,7 +45,6 @@ const emojis = [
 
 function App() {
   const [cards, setCards] = useState<Card[]>([]);
-  const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -90,7 +89,6 @@ function App() {
       isMatched: false,
     }));
     setCards(newCards);
-    setFlippedCards([]);
     setMoves(0);
     setTime(0);
     setIsPlaying(true);
@@ -100,33 +98,40 @@ function App() {
   function handleCardClick(id: number) {
     if (
       isPaused ||
-      flippedCards.length === 2 ||
+      cards.filter((card) => card.isFlipped).length === 2 ||
       cards[id].isMatched ||
       cards[id].isFlipped
     )
       return;
 
-    const newCards = [...cards];
-    newCards[id].isFlipped = true;
+    const newCards = cards.map((card) =>
+      card.id === id ? { ...card, isFlipped: true } : card
+    );
     setCards(newCards);
 
-    const newFlippedCards = [...flippedCards, id];
-    setFlippedCards(newFlippedCards);
-
-    if (newFlippedCards.length === 2) {
+    const flippedCards = newCards.filter(
+      (card) => card.isFlipped && !card.isMatched
+    );
+    if (flippedCards.length === 2) {
       setMoves((prev) => prev + 1);
-      const [firstCard, secondCard] = newFlippedCards;
-      if (cards[firstCard].value === cards[secondCard].value) {
-        newCards[firstCard].isMatched = true;
-        newCards[secondCard].isMatched = true;
-        setCards(newCards);
-        setFlippedCards([]);
+      const [firstCard, secondCard] = flippedCards;
+      if (firstCard.value === secondCard.value) {
+        setCards(
+          newCards.map((card) =>
+            card.id === firstCard.id || card.id === secondCard.id
+              ? { ...card, isMatched: true }
+              : card
+          )
+        );
       } else {
         setTimeout(() => {
-          newCards[firstCard].isFlipped = false;
-          newCards[secondCard].isFlipped = false;
-          setCards(newCards);
-          setFlippedCards([]);
+          setCards(
+            newCards.map((card) =>
+              card.id === firstCard.id || card.id === secondCard.id
+                ? { ...card, isFlipped: false }
+                : card
+            )
+          );
         }, 1000);
       }
     }
