@@ -17,6 +17,7 @@
   flex-direction: column;
   align-items: center;
   gap: 2rem;
+  position: relative;
 }
 
 h1 {
@@ -45,12 +46,26 @@ button:hover {
   background-color: #45a049;
 }
 
+button.pause {
+  background-color: #ffa500;
+}
+
+button.resume {
+  background-color: #2196f3;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   max-width: 600px;
   margin: 0 auto;
+  position: relative;
+}
+
+.card-grid.paused {
+  pointer-events: none;
+  filter: blur(3px);
 }
 
 .card {
@@ -106,4 +121,24 @@ button:hover {
   color: #4caf50;
   margin-top: 2rem;
   font-weight: bold;
+}
+
+.pause-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  z-index: 100;
+}
+
+.pause-overlay h2 {
+  color: white;
+  font-size: 2.5rem;
 }

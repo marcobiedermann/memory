@@ -14,6 +14,7 @@ function App() {
   const [moves, setMoves] = useState(0);
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
 
   const emojis = ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼"];
 
@@ -23,7 +24,7 @@ function App() {
 
   useEffect(() => {
     let timer: number | undefined;
-    if (isPlaying) {
+    if (isPlaying && !isPaused) {
       timer = window.setInterval(() => {
         setTime((prev) => prev + 1);
       }, 1000);
@@ -31,7 +32,7 @@ function App() {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [isPlaying]);
+  }, [isPlaying, isPaused]);
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -53,10 +54,11 @@ function App() {
     setMoves(0);
     setTime(0);
     setIsPlaying(true);
+    setIsPaused(false);
   };
 
   const handleCardClick = (id: number) => {
-    if (flippedCards.length === 2) return;
+    if (isPaused || flippedCards.length === 2) return;
     if (cards[id].isMatched || cards[id].isFlipped) return;
 
     const newCards = [...cards];
@@ -85,6 +87,10 @@ function App() {
     }
   };
 
+  const togglePause = () => {
+    setIsPaused((prev) => !prev);
+  };
+
   const isGameComplete =
     cards.length > 0 && cards.every((card) => card.isMatched);
 
@@ -100,9 +106,17 @@ function App() {
       <div className="game-info">
         <p>Time: {formatTime(time)}</p>
         <p>Moves: {moves}</p>
+        {isPlaying && !isGameComplete && (
+          <button
+            onClick={togglePause}
+            className={isPaused ? "resume" : "pause"}
+          >
+            {isPaused ? "Resume" : "Pause"}
+          </button>
+        )}
         <button onClick={initializeGame}>New Game</button>
       </div>
-      <div className="card-grid">
+      <div className={`card-grid ${isPaused ? "paused" : ""}`}>
         {cards.map((card) => (
           <div
             key={card.id}
@@ -121,6 +135,12 @@ function App() {
       {isGameComplete && (
         <div className="win-message">
           Congratulations! You won in {moves} moves and {formatTime(time)}!
+        </div>
+      )}
+      {isPaused && (
+        <div className="pause-overlay">
+          <h2>Game Paused</h2>
+          <button onClick={togglePause}>Resume</button>
         </div>
       )}
     </div>
