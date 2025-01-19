@@ -8,8 +8,9 @@ import PauseOverlay from "./components/PauseOverlay";
 import WinMessage from "./components/WinMessage";
 
 interface Card {
-  id: number;
+  id: string;
   value: string;
+  pairId: string;
   isFlipped: boolean;
   isMatched: boolean;
 }
@@ -46,6 +47,32 @@ const emojis = [
   "🦒",
 ];
 
+function generateCards(numberOfPairs: number): Card[] {
+  const selectedEmojis = emojis.slice(0, numberOfPairs);
+  const cards = selectedEmojis.flatMap((value) => {
+    const pairId = crypto.randomUUID();
+
+    return [
+      {
+        id: crypto.randomUUID(),
+        pairId,
+        value,
+        isFlipped: false,
+        isMatched: false,
+      },
+      {
+        id: crypto.randomUUID(),
+        pairId,
+        value,
+        isFlipped: false,
+        isMatched: false,
+      },
+    ];
+  });
+
+  return cards;
+}
+
 const formDataSchema = z.object({
   difficulty: z.enum(["easy", "medium", "hard"]),
 });
@@ -53,12 +80,6 @@ const formDataSchema = z.object({
 type FormData = z.infer<typeof formDataSchema>;
 
 function App() {
-  const [cards, setCards] = useState<Card[]>([]);
-  const [moves, setMoves] = useState(0);
-  const [time, setTime] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [matches, setMatches] = useState(0);
   const { register, watch } = useForm<FormData>({
     defaultValues: {
       difficulty: "easy",
@@ -66,6 +87,14 @@ function App() {
     resolver: zodResolver(formDataSchema),
   });
   const difficulty = watch("difficulty");
+  const [cards, setCards] = useState<Card[]>(
+    generateCards(difficultyConfig[difficulty].pairs)
+  );
+  const [moves, setMoves] = useState(0);
+  const [time, setTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [matches, setMatches] = useState(0);
 
   useEffect(() => {
     initializeGame();
@@ -94,17 +123,7 @@ function App() {
   }
 
   function initializeGame() {
-    const { pairs } = difficultyConfig[difficulty];
-    const selectedEmojis = emojis.slice(0, pairs);
-    const duplicatedEmojis = [...selectedEmojis, ...selectedEmojis];
-    const shuffledEmojis = duplicatedEmojis.sort(() => Math.random() - 0.5);
-    const newCards = shuffledEmojis.map((emoji, index) => ({
-      id: index,
-      value: emoji,
-      isFlipped: false,
-      isMatched: false,
-    }));
-    setCards(newCards);
+    setCards(generateCards(difficultyConfig[difficulty].pairs));
     setMoves(0);
     setTime(0);
     setIsPlaying(true);
@@ -112,18 +131,24 @@ function App() {
     setMatches(0);
   }
 
-  function handleCardClick(id: number) {
+  function handleCardClick(id: string) {
+    const card = cards.find((card) => card.id === id)!;
+
     if (
       isPaused ||
       cards.filter((card) => card.isFlipped).length === 2 ||
-      cards[id].isMatched ||
-      cards[id].isFlipped
+      card.isMatched ||
+      card.isFlipped
     )
       return;
 
-    const newCards = cards.map((card) =>
-      card.id === id ? { ...card, isFlipped: true } : card
-    );
+    const newCards = cards.map((card) => {
+      if (card.id === id) {
+        return { ...card, isFlipped: true };
+      }
+
+      return card;
+    });
     setCards(newCards);
 
     const flippedCards = newCards.filter(

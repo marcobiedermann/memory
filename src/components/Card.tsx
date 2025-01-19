@@ -1,11 +1,12 @@
 interface CardProps {
   card: {
-    id: number;
+    id: string;
+    value: string;
+    pairId: string;
     isFlipped: boolean;
     isMatched: boolean;
-    value: string;
   };
-  onClick: (id: number) => void;
+  onClick: (id: string) => void;
 }
 
 function Card(props: CardProps) {
