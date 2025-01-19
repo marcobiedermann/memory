@@ -1,4 +1,7 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import "./App.css";
 import Card from "./components/Card";
 import PauseOverlay from "./components/PauseOverlay";
@@ -43,14 +46,26 @@ const emojis = [
   "🦒",
 ];
 
+const formDataSchema = z.object({
+  difficulty: z.enum(["easy", "medium", "hard"]),
+});
+
+type FormData = z.infer<typeof formDataSchema>;
+
 function App() {
   const [cards, setCards] = useState<Card[]>([]);
   const [moves, setMoves] = useState(0);
   const [time, setTime] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [matches, setMatches] = useState(0);
+  const { register, watch } = useForm<FormData>({
+    defaultValues: {
+      difficulty: "easy",
+    },
+    resolver: zodResolver(formDataSchema),
+  });
+  const difficulty = watch("difficulty");
 
   useEffect(() => {
     initializeGame();
@@ -144,24 +159,50 @@ function App() {
     setIsPaused((prev) => !prev);
   }
 
-  function handleDifficultyChange(newDifficulty: Difficulty) {
-    setDifficulty(newDifficulty);
-  }
-
   return (
     <div className="game-container">
       <h1>Memory Game</h1>
-      <div className="difficulty-selector">
-        {(["easy", "medium", "hard"] as Difficulty[]).map((level) => (
-          <button
-            key={level}
-            onClick={() => handleDifficultyChange(level)}
-            className={`difficulty-btn ${difficulty === level ? "active" : ""}`}
-          >
-            {level.charAt(0).toUpperCase() + level.slice(1)}
-          </button>
-        ))}
-      </div>
+      <form>
+        <legend>Difficulty</legend>
+        <div>
+          <label htmlFor="easy">Easy</label>
+          <div className="difficulty-selector">
+            <input
+              id="easy"
+              type="radio"
+              value="easy"
+              className={`difficulty-btn ${
+                difficulty === "easy" ? "active" : ""
+              }`}
+              {...register("difficulty")}
+            />
+          </div>
+          <div>
+            <label htmlFor="medium">Medium</label>
+            <input
+              id="medium"
+              type="radio"
+              value="medium"
+              className={`difficulty-btn ${
+                difficulty === "medium" ? "active" : ""
+              }`}
+              {...register("difficulty")}
+            />
+          </div>
+          <div>
+            <label htmlFor="hard">Hard</label>
+            <input
+              id="hard"
+              type="radio"
+              value="hard"
+              className={`difficulty-btn ${
+                difficulty === "hard" ? "active" : ""
+              }`}
+              {...register("difficulty")}
+            />
+          </div>
+        </div>
+      </form>
       <div className="game-info">
         <p>Time: {formatTime(time)}</p>
         <p>Moves: {moves}</p>
