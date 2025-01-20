@@ -36,6 +36,7 @@ const difficultyConfig: Record<Difficulty, DifficultyConfig> = {
 const formDataSchema = z.object({
   difficulty: z.enum(["easy", "medium", "hard"]),
   showTimer: z.boolean(),
+  symbols: z.enum(["numbers", "emojies"]),
 });
 
 type FormData = z.infer<typeof formDataSchema>;
@@ -75,10 +76,45 @@ const emojis = [
   "🐃",
 ];
 
+const numbers = [
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  "11",
+  "12",
+  "13",
+  "14",
+  "15",
+  "16",
+  "17",
+  "18",
+  "19",
+  "20",
+  "21",
+  "22",
+  "23",
+  "24",
+  "25",
+  "26",
+  "27",
+  "28",
+  "29",
+  "30",
+  "31",
+  "32",
+];
+
 const pairLength = 2;
 
-function generateCards(numberOfPairs: number): Card[] {
-  const selectedEmojis = emojis.slice(0, numberOfPairs);
+function generateCards(symbols: string[], numberOfPairs: number): Card[] {
+  const selectedEmojis = symbols.slice(0, numberOfPairs);
   const cards = selectedEmojis.flatMap((value) => {
     const pairId = crypto.randomUUID();
 
@@ -143,15 +179,20 @@ function App() {
     defaultValues: {
       difficulty: "easy",
       showTimer: true,
+      symbols: "emojies",
     },
     resolver: zodResolver(formDataSchema),
   });
   const difficulty = watch("difficulty");
   const showTimer = watch("showTimer");
+  const symbols = watch("symbols");
 
   // Cards
   const [cards, setCards] = useState<Card[]>(
-    generateCards(difficultyConfig[difficulty].pairs)
+    generateCards(
+      symbols === "emojies" ? emojis : numbers,
+      difficultyConfig[difficulty].pairs
+    )
   );
   const [moves, setMoves] = useState(0);
   const [matches, setMatches] = useState(0);
@@ -176,7 +217,7 @@ function App() {
 
   useEffect(() => {
     initializeGame();
-  }, [difficulty]);
+  }, [difficulty, symbols]);
 
   useEffect(() => {
     if (cards.length > 0 && cards.every((card) => card.isMatched)) {
@@ -185,7 +226,12 @@ function App() {
   }, [cards]);
 
   function initializeGame() {
-    setCards(generateCards(difficultyConfig[difficulty].pairs));
+    setCards(
+      generateCards(
+        symbols === "emojies" ? emojis : numbers,
+        difficultyConfig[difficulty].pairs
+      )
+    );
     setMoves(0);
     setMatches(0);
     setStartTime(new Date());
@@ -280,8 +326,8 @@ function App() {
         <div>
           <legend>Difficulty</legend>
           <div>
-            <label htmlFor="easy">Easy</label>
-            <div className="difficulty-selector">
+            <div>
+              <label htmlFor="easy">Easy</label>
               <input
                 id="easy"
                 type="radio"
@@ -314,6 +360,29 @@ function App() {
                   difficulty === "hard" ? "active" : ""
                 }`}
                 {...register("difficulty")}
+              />
+            </div>
+          </div>
+        </div>
+        <div>
+          <legend>Symbols</legend>
+          <div>
+            <div>
+              <label htmlFor="easy">Emojies</label>
+              <input
+                id="emojies"
+                type="radio"
+                value="emojies"
+                {...register("symbols")}
+              />
+            </div>
+            <div>
+              <label htmlFor="numbers">Numbers</label>
+              <input
+                id="numbers"
+                type="radio"
+                value="numbers"
+                {...register("symbols")}
               />
             </div>
           </div>
