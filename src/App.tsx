@@ -74,30 +74,62 @@ const emojis = [
   "🐃",
 ];
 
+const pairLength = 2;
+
 function generateCards(numberOfPairs: number): Card[] {
   const selectedEmojis = emojis.slice(0, numberOfPairs);
   const cards = selectedEmojis.flatMap((value) => {
     const pairId = crypto.randomUUID();
 
-    return [
-      {
-        id: crypto.randomUUID(),
-        pairId,
-        value,
-        isFlipped: false,
-        isMatched: false,
-      },
-      {
-        id: crypto.randomUUID(),
-        pairId,
-        value,
-        isFlipped: false,
-        isMatched: false,
-      },
-    ];
+    return Array.from({ length: pairLength }, () => ({
+      id: crypto.randomUUID(),
+      pairId,
+      value,
+      isFlipped: false,
+      isMatched: false,
+    }));
   });
 
   return cards;
+}
+
+function isCardById(card: Card, id: string) {
+  return card.id === id;
+}
+
+function isFippedCard(card: Card) {
+  return card.isFlipped;
+}
+
+function isUnmatchedCard(card: Card) {
+  return !card.isMatched;
+}
+
+function getCardById(cards: Card[], id: string) {
+  return cards.find((card) => isCardById(card, id));
+}
+
+function getFlippedCards(cards: Card[]) {
+  return cards.filter(isFippedCard);
+}
+
+function getFlippedUnmatched(cards: Card[]) {
+  return cards.filter((card) => isFippedCard(card) && isUnmatchedCard(card));
+}
+
+function updateCard(card: Card, props: Partial<Card>) {
+  return {
+    ...card,
+    ...props,
+  };
+}
+
+function incrementMatch(match: number, amount = 1) {
+  return match + amount;
+}
+
+function incrementMove(move: number, amount = 1) {
+  return move + amount;
 }
 
 function formatDuration(duration: Duration) {
@@ -127,6 +159,7 @@ function App() {
   const [currentTime, setCurrentTime] = useState<Date>(now);
   const [delay] = useState(1000);
   const [isRunning, toggleIsRunning] = useBoolean(true);
+  const isPaused = !isRunning;
   const duration = dayjs.duration(dayjs(currentTime).diff(dayjs(startTime)));
 
   useInterval(
@@ -157,51 +190,83 @@ function App() {
   }
 
   function handleCardClick(id: string) {
-    const card = cards.find((card) => card.id === id)!;
+    const card = getCardById(cards, id);
+
+    if (!card) {
+      return;
+    }
+
+    const flippedCards = getFlippedCards(cards);
 
     if (
-      !isRunning ||
-      cards.filter((card) => card.isFlipped).length === 2 ||
+      isPaused ||
+      flippedCards.length === pairLength ||
       card.isMatched ||
       card.isFlipped
-    )
+    ) {
       return;
+    }
 
-    const newCards = cards.map((card) => {
-      if (card.id === id) {
-        return { ...card, isFlipped: true };
+    const updatedCards = cards.map((card) => {
+      if (isCardById(card, id)) {
+        const updatedCard = updateCard(card, {
+          isFlipped: true,
+        });
+
+        return updatedCard;
       }
 
       return card;
     });
-    setCards(newCards);
 
-    const flippedCards = newCards.filter(
-      (card) => card.isFlipped && !card.isMatched
-    );
-    if (flippedCards.length === 2) {
-      setMoves((prev) => prev + 1);
-      const [firstCard, secondCard] = flippedCards;
-      if (firstCard.value === secondCard.value) {
+    setCards(updatedCards);
+
+    const flippedUnmatchedCards = getFlippedUnmatched(updatedCards);
+
+    if (flippedUnmatchedCards.length === pairLength) {
+      if (
+        flippedUnmatchedCards.every(
+          (card) => card.id === flippedUnmatchedCards.at(0)?.id
+        )
+      ) {
         setCards(
-          newCards.map((card) =>
-            card.id === firstCard.id || card.id === secondCard.id
-              ? { ...card, isMatched: true }
-              : card
-          )
+          updatedCards.map((card) => {
+            if (flippedUnmatchedCards.some((card) => isCardById(card, id))) {
+              const updatedCard = updateCard(card, {
+                isMatched: true,
+              });
+
+              return updatedCard;
+            }
+
+            return card;
+          })
         );
-        setMatches((prev) => prev + 1);
+
+        setMatches(incrementMatch);
       } else {
         setTimeout(() => {
           setCards(
-            newCards.map((card) =>
-              card.id === firstCard.id || card.id === secondCard.id
-                ? { ...card, isFlipped: false }
-                : card
-            )
+            updatedCards.map((card) => {
+              if (
+                flippedUnmatchedCards.some((flippedUnmatchedCard) =>
+                  isCardById(card, flippedUnmatchedCard.id)
+                )
+              ) {
+                const updatedCard = updateCard(card, {
+                  isFlipped: false,
+                });
+
+                return updatedCard;
+              }
+
+              return card;
+            })
           );
         }, 1000);
       }
+
+      setMoves(incrementMove);
     }
   }
 
