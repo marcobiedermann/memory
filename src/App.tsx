@@ -35,6 +35,7 @@ const difficultyConfig: Record<Difficulty, DifficultyConfig> = {
 
 const formDataSchema = z.object({
   difficulty: z.enum(["easy", "medium", "hard"]),
+  showTimer: z.boolean(),
 });
 
 type FormData = z.infer<typeof formDataSchema>;
@@ -141,10 +142,12 @@ function App() {
   const { register, watch } = useForm<FormData>({
     defaultValues: {
       difficulty: "easy",
+      showTimer: true,
     },
     resolver: zodResolver(formDataSchema),
   });
   const difficulty = watch("difficulty");
+  const showTimer = watch("showTimer");
 
   // Cards
   const [cards, setCards] = useState<Card[]>(
@@ -274,56 +277,64 @@ function App() {
     <div className="game-container">
       <h1>Memory Game</h1>
       <form>
-        <legend>Difficulty</legend>
         <div>
-          <label htmlFor="easy">Easy</label>
-          <div className="difficulty-selector">
-            <input
-              id="easy"
-              type="radio"
-              value="easy"
-              className={`difficulty-btn ${
-                difficulty === "easy" ? "active" : ""
-              }`}
-              {...register("difficulty")}
-            />
-          </div>
+          <legend>Difficulty</legend>
           <div>
-            <label htmlFor="medium">Medium</label>
-            <input
-              id="medium"
-              type="radio"
-              value="medium"
-              className={`difficulty-btn ${
-                difficulty === "medium" ? "active" : ""
-              }`}
-              {...register("difficulty")}
-            />
+            <label htmlFor="easy">Easy</label>
+            <div className="difficulty-selector">
+              <input
+                id="easy"
+                type="radio"
+                value="easy"
+                className={`difficulty-btn ${
+                  difficulty === "easy" ? "active" : ""
+                }`}
+                {...register("difficulty")}
+              />
+            </div>
+            <div>
+              <label htmlFor="medium">Medium</label>
+              <input
+                id="medium"
+                type="radio"
+                value="medium"
+                className={`difficulty-btn ${
+                  difficulty === "medium" ? "active" : ""
+                }`}
+                {...register("difficulty")}
+              />
+            </div>
+            <div>
+              <label htmlFor="hard">Hard</label>
+              <input
+                id="hard"
+                type="radio"
+                value="hard"
+                className={`difficulty-btn ${
+                  difficulty === "hard" ? "active" : ""
+                }`}
+                {...register("difficulty")}
+              />
+            </div>
           </div>
-          <div>
-            <label htmlFor="hard">Hard</label>
-            <input
-              id="hard"
-              type="radio"
-              value="hard"
-              className={`difficulty-btn ${
-                difficulty === "hard" ? "active" : ""
-              }`}
-              {...register("difficulty")}
-            />
-          </div>
+        </div>
+        <div>
+          <label htmlFor="showTimer">Show Timer</label>
+          <input type="checkbox" {...register("showTimer")} />
         </div>
       </form>
       <div className="game-info">
-        <p>Time: {formatDuration(duration)}</p>
+        {showTimer && <p>Time: {formatDuration(duration)}</p>}
         <p>Moves: {moves}</p>
         <p>Matches: {matches}</p>
-        <button
-          onClick={toggleIsRunning}
-          className={isRunning ? "pause" : "resume"}
-        >
-          {isRunning ? "Pause" : "Resume"}
-        </button>
+        {showTimer && (
+          <button
+            onClick={toggleIsRunning}
+            className={isRunning ? "pause" : "resume"}
+          >
+            {isRunning ? "Pause" : "Resume"}
+          </button>
+        )}
         <button onClick={initializeGame}>New Game</button>
       </div>
       <div
