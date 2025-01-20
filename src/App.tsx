@@ -1,15 +1,15 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import dayjs from "dayjs";
-import durationPlugin, { Duration } from "dayjs/plugin/duration";
-import { shuffle } from "lodash-es";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { useBoolean, useInterval } from "react-use";
-import { z } from "zod";
-import "./App.css";
-import Card from "./components/Card";
-import PauseOverlay from "./components/PauseOverlay";
-import WinMessage from "./components/WinMessage";
+import { zodResolver } from '@hookform/resolvers/zod';
+import dayjs from 'dayjs';
+import durationPlugin, { Duration } from 'dayjs/plugin/duration';
+import { shuffle } from 'lodash-es';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useBoolean, useInterval } from 'react-use';
+import { z } from 'zod';
+import './App.css';
+import Card from './components/Card';
+import PauseOverlay from './components/PauseOverlay';
+import WinMessage from './components/WinMessage';
 
 dayjs.extend(durationPlugin);
 
@@ -21,7 +21,7 @@ interface Card {
   isMatched: boolean;
 }
 
-type Difficulty = "easy" | "medium" | "hard";
+type Difficulty = 'easy' | 'medium' | 'hard';
 
 interface DifficultyConfig {
   pairs: number;
@@ -35,81 +35,81 @@ const difficultyConfig: Record<Difficulty, DifficultyConfig> = {
 };
 
 const formDataSchema = z.object({
-  difficulty: z.enum(["easy", "medium", "hard"]),
+  difficulty: z.enum(['easy', 'medium', 'hard']),
   showTimer: z.boolean(),
-  symbols: z.enum(["numbers", "emojies"]),
+  symbols: z.enum(['numbers', 'emojies']),
 });
 
 type FormData = z.infer<typeof formDataSchema>;
 
 const emojis = [
-  "🐶",
-  "🐱",
-  "🐭",
-  "🐹",
-  "🐰",
-  "🦊",
-  "🐻",
-  "🐼",
-  "🦁",
-  "🐯",
-  "🐸",
-  "🐵",
-  "🦄",
-  "🐷",
-  "🦒",
-  "🐔",
-  "🐧",
-  "🐦",
-  "🐤",
-  "🐣",
-  "🦆",
-  "🦅",
-  "🦉",
-  "🦇",
-  "🐺",
-  "🐗",
-  "🐴",
-  "🦓",
-  "🦌",
-  "🐮",
-  "🐂",
-  "🐃",
+  '🐶',
+  '🐱',
+  '🐭',
+  '🐹',
+  '🐰',
+  '🦊',
+  '🐻',
+  '🐼',
+  '🦁',
+  '🐯',
+  '🐸',
+  '🐵',
+  '🦄',
+  '🐷',
+  '🦒',
+  '🐔',
+  '🐧',
+  '🐦',
+  '🐤',
+  '🐣',
+  '🦆',
+  '🦅',
+  '🦉',
+  '🦇',
+  '🐺',
+  '🐗',
+  '🐴',
+  '🦓',
+  '🦌',
+  '🐮',
+  '🐂',
+  '🐃',
 ];
 
 const numbers = [
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "11",
-  "12",
-  "13",
-  "14",
-  "15",
-  "16",
-  "17",
-  "18",
-  "19",
-  "20",
-  "21",
-  "22",
-  "23",
-  "24",
-  "25",
-  "26",
-  "27",
-  "28",
-  "29",
-  "30",
-  "31",
-  "32",
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '15',
+  '16',
+  '17',
+  '18',
+  '19',
+  '20',
+  '21',
+  '22',
+  '23',
+  '24',
+  '25',
+  '26',
+  '27',
+  '28',
+  '29',
+  '30',
+  '31',
+  '32',
 ];
 
 const pairLength = 2;
@@ -167,26 +167,26 @@ function incrementMove(move: number, amount = 1) {
 }
 
 function formatDuration(duration: Duration) {
-  return duration.format("mm:ss");
+  return duration.format('mm:ss');
 }
 
 function App() {
   // Settings
   const { register, watch } = useForm<FormData>({
     defaultValues: {
-      difficulty: "easy",
+      difficulty: 'easy',
       showTimer: true,
-      symbols: "emojies",
+      symbols: 'emojies',
     },
     resolver: zodResolver(formDataSchema),
   });
-  const difficulty = watch("difficulty");
-  const showTimer = watch("showTimer");
-  const symbols = watch("symbols");
+  const difficulty = watch('difficulty');
+  const showTimer = watch('showTimer');
+  const symbols = watch('symbols');
 
   // Cards
   const [cards, setCards] = useState<Card[]>(
-    generateCards(symbols === "emojies" ? emojis : numbers, difficultyConfig[difficulty].pairs)
+    generateCards(symbols === 'emojies' ? emojis : numbers, difficultyConfig[difficulty].pairs),
   );
   const [moves, setMoves] = useState(0);
   const [matches, setMatches] = useState(0);
@@ -205,7 +205,7 @@ function App() {
 
       setCurrentTime(now);
     },
-    isRunning ? delay : null
+    isRunning ? delay : null,
   );
 
   useEffect(() => {
@@ -219,7 +219,7 @@ function App() {
   }, [cards]);
 
   function initializeGame() {
-    setCards(generateCards(symbols === "emojies" ? emojis : numbers, difficultyConfig[difficulty].pairs));
+    setCards(generateCards(symbols === 'emojies' ? emojis : numbers, difficultyConfig[difficulty].pairs));
     setMoves(0);
     setMatches(0);
     setStartTime(new Date());
@@ -270,7 +270,7 @@ function App() {
           const updatedCards = cards.map((flippedUnmatchedCard) => {
             if (
               flippedUnmatchedCards.some(
-                (flippedUnmatchedCard) => flippedUnmatchedCard.pairId === flippedUnmatchedCard.pairId
+                (flippedUnmatchedCard) => flippedUnmatchedCard.pairId === flippedUnmatchedCard.pairId,
               )
             ) {
               const updatedCard = updateCard(flippedUnmatchedCard, {
@@ -304,8 +304,8 @@ function App() {
                 id="easy"
                 type="radio"
                 value="easy"
-                className={`difficulty-btn ${difficulty === "easy" ? "active" : ""}`}
-                {...register("difficulty")}
+                className={`difficulty-btn ${difficulty === 'easy' ? 'active' : ''}`}
+                {...register('difficulty')}
               />
             </div>
             <div>
@@ -314,8 +314,8 @@ function App() {
                 id="medium"
                 type="radio"
                 value="medium"
-                className={`difficulty-btn ${difficulty === "medium" ? "active" : ""}`}
-                {...register("difficulty")}
+                className={`difficulty-btn ${difficulty === 'medium' ? 'active' : ''}`}
+                {...register('difficulty')}
               />
             </div>
             <div>
@@ -324,8 +324,8 @@ function App() {
                 id="hard"
                 type="radio"
                 value="hard"
-                className={`difficulty-btn ${difficulty === "hard" ? "active" : ""}`}
-                {...register("difficulty")}
+                className={`difficulty-btn ${difficulty === 'hard' ? 'active' : ''}`}
+                {...register('difficulty')}
               />
             </div>
           </div>
@@ -335,17 +335,17 @@ function App() {
           <div>
             <div>
               <label htmlFor="easy">Emojies</label>
-              <input id="emojies" type="radio" value="emojies" {...register("symbols")} />
+              <input id="emojies" type="radio" value="emojies" {...register('symbols')} />
             </div>
             <div>
               <label htmlFor="numbers">Numbers</label>
-              <input id="numbers" type="radio" value="numbers" {...register("symbols")} />
+              <input id="numbers" type="radio" value="numbers" {...register('symbols')} />
             </div>
           </div>
         </div>
         <div>
           <label htmlFor="showTimer">Show Timer</label>
-          <input type="checkbox" {...register("showTimer")} />
+          <input type="checkbox" {...register('showTimer')} />
         </div>
       </form>
       <div className="game-info">
@@ -353,8 +353,8 @@ function App() {
         <p>Moves: {moves}</p>
         <p>Matches: {matches}</p>
         {showTimer && (
-          <button onClick={toggleIsRunning} className={isRunning ? "pause" : "resume"}>
-            {isRunning ? "Pause" : "Resume"}
+          <button onClick={toggleIsRunning} className={isRunning ? 'pause' : 'resume'}>
+            {isRunning ? 'Pause' : 'Resume'}
           </button>
         )}
         <button onClick={initializeGame}>New Game</button>

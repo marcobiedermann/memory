@@ -15,9 +15,7 @@ function Card(props: CardProps) {
   return (
     <div
       key={card.id}
-      className={`card ${card.isFlipped ? "flipped" : ""} ${
-        card.isMatched ? "matched" : ""
-      }`}
+      className={`card ${card.isFlipped ? 'flipped' : ''} ${card.isMatched ? 'matched' : ''}`}
       onClick={() => onClick(card.id)}
     >
       <div className="card-inner">
