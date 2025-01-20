@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import dayjs from "dayjs";
 import durationPlugin, { Duration } from "dayjs/plugin/duration";
+import { shuffle } from "lodash-es";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useBoolean, useInterval } from "react-use";
@@ -114,7 +115,7 @@ const numbers = [
 const pairLength = 2;
 
 function generateCards(symbols: string[], numberOfPairs: number): Card[] {
-  const selectedEmojis = symbols.slice(0, numberOfPairs);
+  const selectedEmojis = shuffle(symbols).slice(0, numberOfPairs);
   const cards = selectedEmojis.flatMap((value) => {
     const pairId = crypto.randomUUID();
 
