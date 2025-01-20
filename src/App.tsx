@@ -147,10 +147,6 @@ function getCardById(cards: Card[], id: string) {
   return cards.find((card) => isCardById(card, id));
 }
 
-function getFlippedCards(cards: Card[]) {
-  return cards.filter(isFippedCard);
-}
-
 function getFlippedUnmatched(cards: Card[]) {
   return cards.filter((card) => isFippedCard(card) && isUnmatchedCard(card));
 }
@@ -190,10 +186,7 @@ function App() {
 
   // Cards
   const [cards, setCards] = useState<Card[]>(
-    generateCards(
-      symbols === "emojies" ? emojis : numbers,
-      difficultyConfig[difficulty].pairs
-    )
+    generateCards(symbols === "emojies" ? emojis : numbers, difficultyConfig[difficulty].pairs)
   );
   const [moves, setMoves] = useState(0);
   const [matches, setMatches] = useState(0);
@@ -204,7 +197,6 @@ function App() {
   const [currentTime, setCurrentTime] = useState<Date>(now);
   const [delay] = useState(1000);
   const [isRunning, toggleIsRunning] = useBoolean(true);
-  const isPaused = !isRunning;
   const duration = dayjs.duration(dayjs(currentTime).diff(dayjs(startTime)));
 
   useInterval(
@@ -227,12 +219,7 @@ function App() {
   }, [cards]);
 
   function initializeGame() {
-    setCards(
-      generateCards(
-        symbols === "emojies" ? emojis : numbers,
-        difficultyConfig[difficulty].pairs
-      )
-    );
+    setCards(generateCards(symbols === "emojies" ? emojis : numbers, difficultyConfig[difficulty].pairs));
     setMoves(0);
     setMatches(0);
     setStartTime(new Date());
@@ -242,18 +229,7 @@ function App() {
   function handleCardClick(id: string) {
     const card = getCardById(cards, id);
 
-    if (!card) {
-      return;
-    }
-
-    const flippedCards = getFlippedCards(cards);
-
-    if (
-      isPaused ||
-      flippedCards.length === pairLength ||
-      card.isMatched ||
-      card.isFlipped
-    ) {
+    if (!card || card.isMatched || card.isFlipped) {
       return;
     }
 
@@ -274,45 +250,40 @@ function App() {
     const flippedUnmatchedCards = getFlippedUnmatched(updatedCards);
 
     if (flippedUnmatchedCards.length === pairLength) {
-      if (
-        flippedUnmatchedCards.every(
-          (card) => card.id === flippedUnmatchedCards.at(0)?.id
-        )
-      ) {
-        setCards(
-          updatedCards.map((card) => {
-            if (flippedUnmatchedCards.some((card) => isCardById(card, id))) {
-              const updatedCard = updateCard(card, {
-                isMatched: true,
+      if (flippedUnmatchedCards.every((flippedUnmatchedCard) => flippedUnmatchedCard.pairId === card.pairId)) {
+        const updatedCards = cards.map((flippedUnmatchedCard) => {
+          if (flippedUnmatchedCard.pairId === card.pairId) {
+            const updatedCard = updateCard(flippedUnmatchedCard, {
+              isMatched: true,
+            });
+
+            return updatedCard;
+          }
+
+          return flippedUnmatchedCard;
+        });
+
+        setCards(updatedCards);
+        setMatches(incrementMatch);
+      } else {
+        setTimeout(() => {
+          const updatedCards = cards.map((flippedUnmatchedCard) => {
+            if (
+              flippedUnmatchedCards.some(
+                (flippedUnmatchedCard) => flippedUnmatchedCard.pairId === flippedUnmatchedCard.pairId
+              )
+            ) {
+              const updatedCard = updateCard(flippedUnmatchedCard, {
+                isFlipped: false,
               });
 
               return updatedCard;
             }
 
-            return card;
-          })
-        );
+            return flippedUnmatchedCard;
+          });
 
-        setMatches(incrementMatch);
-      } else {
-        setTimeout(() => {
-          setCards(
-            updatedCards.map((card) => {
-              if (
-                flippedUnmatchedCards.some((flippedUnmatchedCard) =>
-                  isCardById(card, flippedUnmatchedCard.id)
-                )
-              ) {
-                const updatedCard = updateCard(card, {
-                  isFlipped: false,
-                });
-
-                return updatedCard;
-              }
-
-              return card;
-            })
-          );
+          setCards(updatedCards);
         }, 1000);
       }
 
@@ -333,9 +304,7 @@ function App() {
                 id="easy"
                 type="radio"
                 value="easy"
-                className={`difficulty-btn ${
-                  difficulty === "easy" ? "active" : ""
-                }`}
+                className={`difficulty-btn ${difficulty === "easy" ? "active" : ""}`}
                 {...register("difficulty")}
               />
             </div>
@@ -345,9 +314,7 @@ function App() {
                 id="medium"
                 type="radio"
                 value="medium"
-                className={`difficulty-btn ${
-                  difficulty === "medium" ? "active" : ""
-                }`}
+                className={`difficulty-btn ${difficulty === "medium" ? "active" : ""}`}
                 {...register("difficulty")}
               />
             </div>
@@ -357,9 +324,7 @@ function App() {
                 id="hard"
                 type="radio"
                 value="hard"
-                className={`difficulty-btn ${
-                  difficulty === "hard" ? "active" : ""
-                }`}
+                className={`difficulty-btn ${difficulty === "hard" ? "active" : ""}`}
                 {...register("difficulty")}
               />
             </div>
@@ -370,21 +335,11 @@ function App() {
           <div>
             <div>
               <label htmlFor="easy">Emojies</label>
-              <input
-                id="emojies"
-                type="radio"
-                value="emojies"
-                {...register("symbols")}
-              />
+              <input id="emojies" type="radio" value="emojies" {...register("symbols")} />
             </div>
             <div>
               <label htmlFor="numbers">Numbers</label>
-              <input
-                id="numbers"
-                type="radio"
-                value="numbers"
-                {...register("symbols")}
-              />
+              <input id="numbers" type="radio" value="numbers" {...register("symbols")} />
             </div>
           </div>
         </div>
@@ -398,10 +353,7 @@ function App() {
         <p>Moves: {moves}</p>
         <p>Matches: {matches}</p>
         {showTimer && (
-          <button
-            onClick={toggleIsRunning}
-            className={isRunning ? "pause" : "resume"}
-          >
+          <button onClick={toggleIsRunning} className={isRunning ? "pause" : "resume"}>
             {isRunning ? "Pause" : "Resume"}
           </button>
         )}
@@ -418,10 +370,7 @@ function App() {
         ))}
       </div>
       {cards.every((card) => card.isMatched) && (
-        <WinMessage
-          moves={moves}
-          formattedDuration={formatDuration(duration)}
-        />
+        <WinMessage moves={moves} formattedDuration={formatDuration(duration)} />
       )}
       {!isRunning && <PauseOverlay togglePause={toggleIsRunning} />}
     </div>
