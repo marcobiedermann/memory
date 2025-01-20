@@ -115,17 +115,21 @@ const numbers = [
 const pairLength = 2;
 
 function generateCards(symbols: string[], numberOfPairs: number): Card[] {
-  const selectedEmojis = shuffle(symbols).slice(0, numberOfPairs);
-  const cards = selectedEmojis.flatMap((value) => {
+  const selectedSymbols = shuffle(symbols).slice(0, numberOfPairs);
+  const cards = selectedSymbols.flatMap((value) => {
     const pairId = crypto.randomUUID();
 
-    return Array.from({ length: pairLength }, () => ({
-      id: crypto.randomUUID(),
-      pairId,
-      value,
-      isFlipped: false,
-      isMatched: false,
-    }));
+    return Array.from({ length: pairLength }, () => {
+      const id = crypto.randomUUID();
+
+      return {
+        id,
+        pairId,
+        value,
+        isFlipped: false,
+        isMatched: false,
+      };
+    });
   });
 
   return cards;
@@ -197,6 +201,7 @@ function App() {
   const [currentTime, setCurrentTime] = useState<Date>(now);
   const [delay] = useState(1000);
   const [isRunning, toggleIsRunning] = useBoolean(true);
+  const isPaused = !isRunning;
   const duration = dayjs.duration(dayjs(currentTime).diff(dayjs(startTime)));
 
   useInterval(
@@ -372,7 +377,7 @@ function App() {
       {cards.every((card) => card.isMatched) && (
         <WinMessage moves={moves} formattedDuration={formatDuration(duration)} />
       )}
-      {!isRunning && <PauseOverlay togglePause={toggleIsRunning} />}
+      {isPaused && <PauseOverlay togglePause={toggleIsRunning} />}
     </div>
   );
 }
