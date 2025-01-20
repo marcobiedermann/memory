@@ -1,14 +1,14 @@
 interface WinMessageProps {
   moves: number;
-  time: number;
-  formatTime: (time: number) => string;
+  formattedDuration: string;
 }
 
 function WinMessage(props: WinMessageProps) {
-  const { moves, time, formatTime } = props;
+  const { moves, formattedDuration } = props;
+
   return (
     <div className="win-message">
-      Congratulations! You won in {moves} moves and {formatTime(time)}!
+      Congratulations! You won in {moves} moves and {formattedDuration}!
     </div>
   );
 }

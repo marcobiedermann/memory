@@ -1,11 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import dayjs from "dayjs";
+import durationPlugin, { Duration } from "dayjs/plugin/duration";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useBoolean, useInterval } from "react-use";
 import { z } from "zod";
 import "./App.css";
 import Card from "./components/Card";
 import PauseOverlay from "./components/PauseOverlay";
 import WinMessage from "./components/WinMessage";
+
+dayjs.extend(durationPlugin);
 
 interface Card {
   id: string;
@@ -27,6 +32,12 @@ const difficultyConfig: Record<Difficulty, DifficultyConfig> = {
   medium: { pairs: 18, gridCols: 6 },
   hard: { pairs: 32, gridCols: 8 },
 };
+
+const formDataSchema = z.object({
+  difficulty: z.enum(["easy", "medium", "hard"]),
+});
+
+type FormData = z.infer<typeof formDataSchema>;
 
 const emojis = [
   "🐶",
@@ -89,13 +100,12 @@ function generateCards(numberOfPairs: number): Card[] {
   return cards;
 }
 
-const formDataSchema = z.object({
-  difficulty: z.enum(["easy", "medium", "hard"]),
-});
-
-type FormData = z.infer<typeof formDataSchema>;
+function formatDuration(duration: Duration) {
+  return duration.format("mm:ss");
+}
 
 function App() {
+  // Settings
   const { register, watch } = useForm<FormData>({
     defaultValues: {
       difficulty: "easy",
@@ -103,55 +113,54 @@ function App() {
     resolver: zodResolver(formDataSchema),
   });
   const difficulty = watch("difficulty");
+
+  // Cards
   const [cards, setCards] = useState<Card[]>(
     generateCards(difficultyConfig[difficulty].pairs)
   );
   const [moves, setMoves] = useState(0);
-  const [time, setTime] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
   const [matches, setMatches] = useState(0);
+
+  // Timer
+  const now = new Date();
+  const [startTime, setStartTime] = useState<Date>(now);
+  const [currentTime, setCurrentTime] = useState<Date>(now);
+  const [delay] = useState(1000);
+  const [isRunning, toggleIsRunning] = useBoolean(true);
+  const duration = dayjs.duration(dayjs(currentTime).diff(dayjs(startTime)));
+
+  useInterval(
+    () => {
+      const now = new Date();
+
+      setCurrentTime(now);
+    },
+    isRunning ? delay : null
+  );
 
   useEffect(() => {
     initializeGame();
   }, [difficulty]);
 
   useEffect(() => {
-    let timer: number | undefined;
-    if (isPlaying && !isPaused) {
-      timer = window.setInterval(() => setTime((prev) => prev + 1), 1000);
-    }
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [isPlaying, isPaused]);
-
-  useEffect(() => {
     if (cards.length > 0 && cards.every((card) => card.isMatched)) {
-      setIsPlaying(false);
+      toggleIsRunning(false);
     }
   }, [cards]);
-
-  function formatTime(seconds: number): string {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  }
 
   function initializeGame() {
     setCards(generateCards(difficultyConfig[difficulty].pairs));
     setMoves(0);
-    setTime(0);
-    setIsPlaying(true);
-    setIsPaused(false);
     setMatches(0);
+    setStartTime(new Date());
+    toggleIsRunning(true);
   }
 
   function handleCardClick(id: string) {
     const card = cards.find((card) => card.id === id)!;
 
     if (
-      isPaused ||
+      !isRunning ||
       cards.filter((card) => card.isFlipped).length === 2 ||
       card.isMatched ||
       card.isFlipped
@@ -194,10 +203,6 @@ function App() {
         }, 1000);
       }
     }
-  }
-
-  function togglePause() {
-    setIsPaused((prev) => !prev);
   }
 
   return (
@@ -245,21 +250,19 @@ function App() {
         </div>
       </form>
       <div className="game-info">
-        <p>Time: {formatTime(time)}</p>
+        <p>Time: {formatDuration(duration)}</p>
         <p>Moves: {moves}</p>
         <p>Matches: {matches}</p>
-        {isPlaying && !cards.every((card) => card.isMatched) && (
-          <button
-            onClick={togglePause}
-            className={isPaused ? "resume" : "pause"}
-          >
-            {isPaused ? "Resume" : "Pause"}
-          </button>
-        )}
+        <button
+          onClick={toggleIsRunning}
+          className={isRunning ? "pause" : "resume"}
+        >
+          {isRunning ? "Pause" : "Resume"}
+        </button>
         <button onClick={initializeGame}>New Game</button>
       </div>
       <div
-        className={`card-grid ${isPaused ? "paused" : ""}`}
+        className="card-grid"
         style={{
           gridTemplateColumns: `repeat(${difficultyConfig[difficulty].gridCols}, 1fr)`,
         }}
@@ -269,9 +272,12 @@ function App() {
         ))}
       </div>
       {cards.every((card) => card.isMatched) && (
-        <WinMessage moves={moves} time={time} formatTime={formatTime} />
+        <WinMessage
+          moves={moves}
+          formattedDuration={formatDuration(duration)}
+        />
       )}
-      {isPaused && <PauseOverlay togglePause={togglePause} />}
+      {!isRunning && <PauseOverlay togglePause={toggleIsRunning} />}
     </div>
   );
 }
