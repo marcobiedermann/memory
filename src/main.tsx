@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { PersistGate } from 'redux-persist/integration/react';
 import App from './App.tsx';
+import SettingsPage from './Settings.tsx';
 import './index.css';
 import { persistor, store } from './store.ts';
 
@@ -11,6 +12,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
+  },
+  {
+    path: '/settings',
+    element: <SettingsPage />,
   },
 ]);
 
