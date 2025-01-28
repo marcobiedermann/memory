@@ -1,5 +1,3 @@
-import dayjs from 'dayjs';
-import durationPlugin, { Duration } from 'dayjs/plugin/duration';
 import { shuffle } from 'lodash-es';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -9,9 +7,12 @@ import './App.css';
 import Card from './components/Card';
 import PauseOverlay from './components/PauseOverlay';
 import WinMessage from './components/WinMessage';
+import { useMoves } from './hooks/moves';
 import { RootState } from './store';
-
-dayjs.extend(durationPlugin);
+import { getCardById, getFlippedUnmatched, isCardById, isEveryCardMatched, updateCard } from './utils/cards';
+import { formatDuration, getDuration } from './utils/duration';
+import { incrementMatch } from './utils/matches';
+import { incrementMove } from './utils/moves';
 
 interface Card {
   id: string;
@@ -127,45 +128,6 @@ function generateCards(symbols: string[], numberOfPairs: number): Card[] {
   return cards;
 }
 
-function isCardById(card: Card, id: string) {
-  return card.id === id;
-}
-
-function isFippedCard(card: Card) {
-  return card.isFlipped;
-}
-
-function isUnmatchedCard(card: Card) {
-  return !card.isMatched;
-}
-
-function getCardById(cards: Card[], id: string) {
-  return cards.find((card) => isCardById(card, id));
-}
-
-function getFlippedUnmatched(cards: Card[]) {
-  return cards.filter((card) => isFippedCard(card) && isUnmatchedCard(card));
-}
-
-function updateCard(card: Card, props: Partial<Card>) {
-  return {
-    ...card,
-    ...props,
-  };
-}
-
-function incrementMatch(match: number, amount = 1) {
-  return match + amount;
-}
-
-function incrementMove(move: number, amount = 1) {
-  return move + amount;
-}
-
-function formatDuration(duration: Duration) {
-  return duration.format('mm:ss');
-}
-
 function App() {
   const settings = useSelector((state: RootState) => state.settings);
 
@@ -173,7 +135,7 @@ function App() {
   const [cards, setCards] = useState<Card[]>(
     generateCards(settings.symbols === 'emojies' ? emojis : numbers, difficultyConfig[settings.difficulty].pairs),
   );
-  const [moves, setMoves] = useState(0);
+  const { moves, setMoves } = useMoves();
   const [matches, setMatches] = useState(0);
 
   // Timer
@@ -183,7 +145,7 @@ function App() {
   const [delay] = useState(1000);
   const [isRunning, toggleIsRunning] = useBoolean(true);
   const isPaused = !isRunning;
-  const duration = dayjs.duration(dayjs(currentTime).diff(dayjs(startTime)));
+  const duration = getDuration(currentTime, startTime);
 
   useInterval(
     () => {
@@ -304,9 +266,8 @@ function App() {
           <Card key={card.id} card={card} onClick={handleCardClick} />
         ))}
       </div>
-      {cards.every((card) => card.isMatched) && (
-        <WinMessage moves={moves} formattedDuration={formatDuration(duration)} />
-      )}
+
+      {isEveryCardMatched(cards) && <WinMessage moves={moves} formattedDuration={formatDuration(duration)} />}
       {isPaused && <PauseOverlay togglePause={toggleIsRunning} />}
       <Link to="/settings">Settings</Link>
     </div>
