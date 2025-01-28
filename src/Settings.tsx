@@ -1,7 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { z } from 'zod';
+import { update } from './slices/settings';
+import { RootState } from './store';
 
 const formDataSchema = z.object({
   difficulty: z.enum(['easy', 'medium', 'hard']),
@@ -12,18 +15,16 @@ const formDataSchema = z.object({
 type FormData = z.infer<typeof formDataSchema>;
 
 function SettingsPage() {
-  const { handleSubmit, register, watch } = useForm<FormData>({
-    defaultValues: {
-      difficulty: 'easy',
-      showTimer: true,
-      symbols: 'emojies',
-    },
+  const dispatch = useDispatch();
+  const settings = useSelector((state: RootState) => state.settings);
+
+  const { handleSubmit, register } = useForm<FormData>({
+    defaultValues: settings,
     resolver: zodResolver(formDataSchema),
   });
-  const difficulty = watch('difficulty');
 
   function onSubmit(data: FormData) {
-    console.log({ data });
+    dispatch(update(data));
   }
 
   return (
@@ -39,7 +40,7 @@ function SettingsPage() {
                 id="easy"
                 type="radio"
                 value="easy"
-                className={`difficulty-btn ${difficulty === 'easy' ? 'active' : ''}`}
+                className={`difficulty-btn ${settings.difficulty === 'easy' ? 'active' : ''}`}
                 {...register('difficulty')}
               />
             </div>
@@ -49,7 +50,7 @@ function SettingsPage() {
                 id="medium"
                 type="radio"
                 value="medium"
-                className={`difficulty-btn ${difficulty === 'medium' ? 'active' : ''}`}
+                className={`difficulty-btn ${settings.difficulty === 'medium' ? 'active' : ''}`}
                 {...register('difficulty')}
               />
             </div>
@@ -59,7 +60,7 @@ function SettingsPage() {
                 id="hard"
                 type="radio"
                 value="hard"
-                className={`difficulty-btn ${difficulty === 'hard' ? 'active' : ''}`}
+                className={`difficulty-btn ${settings.difficulty === 'hard' ? 'active' : ''}`}
                 {...register('difficulty')}
               />
             </div>

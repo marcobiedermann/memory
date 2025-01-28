@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface SettingsState {
   difficulty: 'easy' | 'medium' | 'hard';
@@ -15,9 +15,19 @@ const initialState: SettingsState = {
 export const settingsSlice = createSlice({
   name: 'settings',
   initialState,
-  reducers: {},
+  reducers: {
+    update: (state, action: PayloadAction<SettingsState>) => {
+      state.difficulty = action.payload.difficulty;
+      state.symbols = action.payload.symbols;
+      state.showTimer = action.payload.showTimer;
+    },
+  },
 });
 
-const { reducer } = settingsSlice;
+const {
+  actions: { update },
+  reducer,
+} = settingsSlice;
 
+export { update };
 export default reducer;

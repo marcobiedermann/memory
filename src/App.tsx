@@ -2,12 +2,14 @@ import dayjs from 'dayjs';
 import durationPlugin, { Duration } from 'dayjs/plugin/duration';
 import { shuffle } from 'lodash-es';
 import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useBoolean, useInterval } from 'react-use';
 import './App.css';
 import Card from './components/Card';
 import PauseOverlay from './components/PauseOverlay';
 import WinMessage from './components/WinMessage';
+import { RootState } from './store';
 
 dayjs.extend(durationPlugin);
 
@@ -165,13 +167,11 @@ function formatDuration(duration: Duration) {
 }
 
 function App() {
-  const difficulty = 'easy';
-  const symbols = 'emojies';
-  const showTimer = true;
+  const settings = useSelector((state: RootState) => state.settings);
 
   // Cards
   const [cards, setCards] = useState<Card[]>(
-    generateCards(symbols === 'emojies' ? emojis : numbers, difficultyConfig[difficulty].pairs),
+    generateCards(settings.symbols === 'emojies' ? emojis : numbers, difficultyConfig[settings.difficulty].pairs),
   );
   const [moves, setMoves] = useState(0);
   const [matches, setMatches] = useState(0);
@@ -196,7 +196,7 @@ function App() {
 
   useEffect(() => {
     initializeGame();
-  }, [difficulty, symbols]);
+  }, [settings.difficulty, settings.symbols]);
 
   useEffect(() => {
     if (cards.length > 0 && cards.every((card) => card.isMatched)) {
@@ -205,7 +205,9 @@ function App() {
   }, [cards]);
 
   function initializeGame() {
-    setCards(generateCards(symbols === 'emojies' ? emojis : numbers, difficultyConfig[difficulty].pairs));
+    setCards(
+      generateCards(settings.symbols === 'emojies' ? emojis : numbers, difficultyConfig[settings.difficulty].pairs),
+    );
     setMoves(0);
     setMatches(0);
     setStartTime(new Date());
@@ -282,10 +284,10 @@ function App() {
       <h1>Memory Game</h1>
 
       <div className="game-info">
-        {showTimer && <p>Time: {formatDuration(duration)}</p>}
+        {settings.showTimer && <p>Time: {formatDuration(duration)}</p>}
         <p>Moves: {moves}</p>
         <p>Matches: {matches}</p>
-        {showTimer && (
+        {settings.showTimer && (
           <button onClick={toggleIsRunning} className={isRunning ? 'pause' : 'resume'}>
             {isRunning ? 'Pause' : 'Resume'}
           </button>
@@ -295,7 +297,7 @@ function App() {
       <div
         className="cards"
         style={{
-          gridTemplateColumns: `repeat(${difficultyConfig[difficulty].gridCols}, 1fr)`,
+          gridTemplateColumns: `repeat(${difficultyConfig[settings.difficulty].gridCols}, 1fr)`,
         }}
       >
         {cards.map((card) => (
