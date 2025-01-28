@@ -297,7 +297,7 @@ function App() {
   }
 
   return (
-    <div className="game-container">
+    <div className="app">
       <h1>Memory Game</h1>
       <form>
         <div>
@@ -365,7 +365,7 @@ function App() {
         <button onClick={initializeGame}>New Game</button>
       </div>
       <div
-        className="card-grid"
+        className="cards"
         style={{
           gridTemplateColumns: `repeat(${difficultyConfig[difficulty].gridCols}, 1fr)`,
         }}
