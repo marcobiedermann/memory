@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useBoolean, useInterval } from 'react-use';
 import './App.css';
 import Card from './components/Card';
+import Cards from './components/Cards';
 import PauseOverlay from './components/PauseOverlay';
 import WinMessage from './components/WinMessage';
 import { useMoves } from './hooks/moves';
@@ -256,16 +257,13 @@ function App() {
         )}
         <button onClick={initializeGame}>New Game</button>
       </div>
-      <div
-        className="cards"
+      <Cards
+        cards={cards}
+        onCardClick={handleCardClick}
         style={{
           gridTemplateColumns: `repeat(${difficultyConfig[settings.difficulty].gridCols}, 1fr)`,
         }}
-      >
-        {cards.map((card) => (
-          <Card key={card.id} card={card} onClick={handleCardClick} />
-        ))}
-      </div>
+      />
 
       {isEveryCardMatched(cards) && <WinMessage moves={moves} formattedDuration={formatDuration(duration)} />}
       {isPaused && <PauseOverlay togglePause={toggleIsRunning} />}

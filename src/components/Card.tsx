@@ -1,29 +1,24 @@
 interface CardProps {
-  card: {
-    id: string;
-    value: string;
-    pairId: string;
-    isFlipped: boolean;
-    isMatched: boolean;
-  };
+  id: string;
+  value: string;
+  pairId: string;
+  isFlipped: boolean;
+  isMatched: boolean;
   onClick: (id: string) => void;
 }
 
 function Card(props: CardProps) {
-  const { card, onClick } = props;
+  const { id, isFlipped, isMatched, value, onClick } = props;
 
   return (
-    <div
-      key={card.id}
-      className={`card ${card.isFlipped ? 'flipped' : ''} ${card.isMatched ? 'matched' : ''}`}
-      onClick={() => onClick(card.id)}
-    >
+    <div className={`card ${isFlipped ? 'flipped' : ''} ${isMatched ? 'matched' : ''}`} onClick={() => onClick(id)}>
       <div className="card-inner">
         <div className="card-front">?</div>
-        <div className="card-back">{card.value}</div>
+        <div className="card-back">{value}</div>
       </div>
     </div>
   );
 }
 
+export type { CardProps };
 export default Card;
