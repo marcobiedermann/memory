@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { useBoolean, useInterval } from 'react-use';
-import './App.css';
 import Card from './components/Card';
 import Cards from './components/Cards';
 import PauseOverlay from './components/PauseOverlay';
@@ -31,9 +30,9 @@ interface DifficultyConfig {
 }
 
 const difficultyConfig: Record<Difficulty, DifficultyConfig> = {
-  easy: { pairs: 8, gridCols: 4 },
-  medium: { pairs: 18, gridCols: 6 },
-  hard: { pairs: 32, gridCols: 8 },
+  easy: { pairs: 12, gridCols: 6 }, // 24
+  medium: { pairs: 20, gridCols: 8 }, // 40
+  hard: { pairs: 30, gridCols: 10 }, // 60
 };
 
 const emojis = [
@@ -249,13 +248,17 @@ function App() {
       <div className="game-info">
         {settings.showTimer && <p>Time: {formatDuration(duration)}</p>}
         <p>Moves: {moves}</p>
-        <p>Matches: {matches}</p>
+        <p>
+          Matches: {matches}/{cards.length / pairLength}
+        </p>
         {settings.showTimer && (
-          <button onClick={toggleIsRunning} className={isRunning ? 'pause' : 'resume'}>
+          <button onClick={toggleIsRunning} className="button">
             {isRunning ? 'Pause' : 'Resume'}
           </button>
         )}
-        <button onClick={initializeGame}>New Game</button>
+        <button onClick={initializeGame} className="button">
+          New Game
+        </button>
       </div>
       <Cards
         cards={cards}
@@ -267,7 +270,9 @@ function App() {
 
       {isEveryCardMatched(cards) && <WinMessage moves={moves} formattedDuration={formatDuration(duration)} />}
       {isPaused && <PauseOverlay togglePause={toggleIsRunning} />}
-      <Link to="/settings">Settings</Link>
+      <p>
+        <Link to="/settings">Settings</Link>
+      </p>
     </div>
   );
 }

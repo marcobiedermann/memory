@@ -8,15 +8,20 @@ interface CardProps {
 }
 
 function Card(props: CardProps) {
-  const { id, isFlipped, isMatched, value, onClick } = props;
+  const { id, isFlipped, isMatched, value, onClick, ...otherProps } = props;
 
   return (
-    <div className={`card ${isFlipped ? 'flipped' : ''} ${isMatched ? 'matched' : ''}`} onClick={() => onClick(id)}>
+    <button
+      className={`card ${isFlipped ? 'flipped' : ''} ${isMatched ? 'matched' : ''}`}
+      onClick={() => onClick(id)}
+      disabled={isFlipped || isMatched}
+      {...otherProps}
+    >
       <div className="card-inner">
-        <div className="card-front">?</div>
-        <div className="card-back">{value}</div>
+        <div className="card-back">?</div>
+        <div className="card-front">{value}</div>
       </div>
-    </div>
+    </button>
   );
 }
 
