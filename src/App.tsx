@@ -105,14 +105,16 @@ const numbers = [
   '32',
 ];
 
-const pairLength = 2;
+const PAIR_LENGTH = 2;
+
+const TIMEOUT = 1000;
 
 function generateCards(symbols: string[], numberOfPairs: number): Card[] {
   const selectedSymbols = shuffle(symbols).slice(0, numberOfPairs);
   const cards = selectedSymbols.flatMap((value) => {
     const pairId = crypto.randomUUID();
 
-    return Array.from({ length: pairLength }, () => {
+    return Array.from({ length: PAIR_LENGTH }, () => {
       const id = crypto.randomUUID();
 
       return {
@@ -199,7 +201,7 @@ function App() {
 
     const flippedUnmatchedCards = getFlippedUnmatched(updatedCards);
 
-    if (flippedUnmatchedCards.length === pairLength) {
+    if (flippedUnmatchedCards.length === PAIR_LENGTH) {
       if (flippedUnmatchedCards.every((flippedUnmatchedCard) => flippedUnmatchedCard.pairId === card.pairId)) {
         const updatedCards = cards.map((flippedUnmatchedCard) => {
           if (flippedUnmatchedCard.pairId === card.pairId) {
@@ -234,7 +236,7 @@ function App() {
           });
 
           setCards(updatedCards);
-        }, 1000);
+        }, TIMEOUT);
       }
 
       setMoves(incrementMove);
@@ -246,11 +248,11 @@ function App() {
       <h1>Memory Game</h1>
 
       <div className="game-info">
-        {settings.showTimer && <p>Time: {formatDuration(duration)}</p>}
-        <p>Moves: {moves}</p>
-        <p>
-          Matches: {matches}/{cards.length / pairLength}
-        </p>
+        {settings.showTimer && <div>Time: {formatDuration(duration)}</div>}
+        <div>Moves: {moves}</div>
+        <div>
+          Matches: {matches}/{cards.length / PAIR_LENGTH}
+        </div>
         {settings.showTimer && (
           <button onClick={toggleIsRunning} className="button">
             {isRunning ? 'Pause' : 'Resume'}
@@ -260,6 +262,7 @@ function App() {
           New Game
         </button>
       </div>
+
       <Cards
         cards={cards}
         onCardClick={handleCardClick}

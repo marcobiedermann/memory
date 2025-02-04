@@ -65,9 +65,10 @@ h1 {
 }
 
 .game-info {
+  align-items: center;
   display: flex;
   gap: 3rem;
-  align-items: center;
+  margin-block: 1.5em;
 }
 
 .cards {
