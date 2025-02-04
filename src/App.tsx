@@ -107,7 +107,7 @@ const numbers = [
 
 const PAIR_LENGTH = 2;
 
-const TIMEOUT = 1000;
+const TIMEOUT = 1_000;
 
 function generateCards(symbols: string[], numberOfPairs: number): Card[] {
   const selectedSymbols = shuffle(symbols).slice(0, numberOfPairs);
@@ -139,6 +139,7 @@ function App() {
   );
   const { moves, setMoves } = useMoves();
   const [matches, setMatches] = useState(0);
+  const [isChecking, toggleIsChecking] = useBoolean(false);
 
   // Timer
   const now = new Date();
@@ -202,6 +203,8 @@ function App() {
     const flippedUnmatchedCards = getFlippedUnmatched(updatedCards);
 
     if (flippedUnmatchedCards.length === PAIR_LENGTH) {
+      toggleIsChecking(true);
+
       if (flippedUnmatchedCards.every((flippedUnmatchedCard) => flippedUnmatchedCard.pairId === card.pairId)) {
         const updatedCards = cards.map((flippedUnmatchedCard) => {
           if (flippedUnmatchedCard.pairId === card.pairId) {
@@ -217,6 +220,7 @@ function App() {
 
         setCards(updatedCards);
         setMatches(incrementMatch);
+        toggleIsChecking(false);
       } else {
         setTimeout(() => {
           const updatedCards = cards.map((flippedUnmatchedCard) => {
@@ -236,6 +240,7 @@ function App() {
           });
 
           setCards(updatedCards);
+          toggleIsChecking(false);
         }, TIMEOUT);
       }
 
@@ -264,6 +269,7 @@ function App() {
       </div>
 
       <Cards
+        disabled={isChecking}
         cards={cards}
         onCardClick={handleCardClick}
         style={{

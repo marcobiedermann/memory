@@ -3,12 +3,13 @@ import type { CardProps } from './Card';
 import Card from './Card';
 
 interface CardsProps extends HTMLAttributes<HTMLUListElement> {
-  cards: Omit<CardProps, 'onClick'>[];
+  disabled?: boolean;
+  cards: Omit<CardProps, 'disabled' | 'onClick'>[];
   onCardClick: (id: string) => void;
 }
 
 function Cards(props: CardsProps) {
-  const { cards, onCardClick, ...otherProps } = props;
+  const { disabled, cards, onCardClick, ...otherProps } = props;
 
   return (
     <ul className="cards" {...otherProps}>
@@ -17,7 +18,7 @@ function Cards(props: CardsProps) {
 
         return (
           <li key={id}>
-            <Card onClick={onCardClick} {...card} />
+            <Card onClick={onCardClick} disabled={disabled} {...card} />
           </li>
         );
       })}
