@@ -135,7 +135,9 @@ function App() {
 
   // Cards
   const [cards, setCards] = useState<Card[]>(
-    generateCards(settings.symbols === 'emojies' ? emojis : numbers, difficultyConfig[settings.difficulty].pairs),
+    shuffle(
+      generateCards(settings.symbols === 'emojies' ? emojis : numbers, difficultyConfig[settings.difficulty].pairs),
+    ),
   );
   const { moves, setMoves } = useMoves();
   const [matches, setMatches] = useState(0);
@@ -171,7 +173,9 @@ function App() {
 
   function initializeGame() {
     setCards(
-      generateCards(settings.symbols === 'emojies' ? emojis : numbers, difficultyConfig[settings.difficulty].pairs),
+      shuffle(
+        generateCards(settings.symbols === 'emojies' ? emojis : numbers, difficultyConfig[settings.difficulty].pairs),
+      ),
     );
     setMoves(0);
     setMatches(0);
