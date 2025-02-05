@@ -38,3 +38,4 @@ function updateCard(card: Card, props: Partial<Card>) {
 }
 
 export { getCardById, getFlippedUnmatched, isCardById, isEveryCardMatched, isFippedCard, isUnmatchedCard, updateCard };
+export type { Card };
