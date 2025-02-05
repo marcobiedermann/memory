@@ -1,13 +1,13 @@
 import { shuffle } from 'lodash-es';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useBoolean, useInterval } from 'react-use';
 import Card from './components/Card';
 import Cards from './components/Cards';
 import PauseOverlay from './components/PauseOverlay';
 import WinMessage from './components/WinMessage';
 import { useMemory } from './hooks/memory';
+import { useTimer } from './hooks/timer';
 import { RootState } from './store';
 import { isEveryCardMatched } from './utils/cards';
 import { formatDuration, getDuration } from './utils/duration';
@@ -135,39 +135,30 @@ function App() {
     () => generateCards(settings.symbols === 'emojies' ? emojis : numbers, difficultyConfig[settings.difficulty].pairs),
     [settings],
   );
-  const { cards, isChecking, matches, moves, onCardClick, reset } = useMemory({
+  const {
+    cards,
+    isChecking,
+    matches,
+    moves,
+    onCardClick,
+    reset: resetMemory,
+  } = useMemory({
     initialCards: DEBUG ? generatedCards : shuffle(generatedCards),
   });
 
-  // Timer
-  const now = new Date();
-  const [startTime, setStartTime] = useState<Date>(now);
-  const [currentTime, setCurrentTime] = useState<Date>(now);
-  const [delay] = useState(1000);
-  const [isRunning, toggleIsRunning] = useBoolean(true);
-  const isPaused = !isRunning;
-  const duration = getDuration(currentTime, startTime);
+  const { isRunning, isPaused, currentDate, createdAt, reset: resetTimer, pause, start } = useTimer();
+  const duration = getDuration(currentDate, createdAt);
 
-  useInterval(
-    () => {
-      const now = new Date();
-
-      setCurrentTime(now);
-    },
-    isRunning ? delay : null,
-  );
+  function initializeGame() {
+    resetMemory(DEBUG ? generatedCards : shuffle(generatedCards));
+    resetTimer();
+  }
 
   useEffect(() => {
     if (isEveryCardMatched(cards)) {
-      toggleIsRunning(false);
+      pause();
     }
   }, [cards]);
-
-  function initializeGame() {
-    reset(DEBUG ? generatedCards : shuffle(generatedCards));
-    setStartTime(new Date());
-    toggleIsRunning(true);
-  }
 
   return (
     <div className="app">
@@ -180,7 +171,7 @@ function App() {
           Matches: {matches}/{cards.length / PAIR_LENGTH}
         </div>
         {settings.showTimer && (
-          <button onClick={toggleIsRunning} className="button">
+          <button onClick={() => (isRunning ? pause() : start())} className="button">
             {isRunning ? 'Pause' : 'Resume'}
           </button>
         )}
@@ -199,7 +190,7 @@ function App() {
       />
 
       {isEveryCardMatched(cards) && <WinMessage moves={moves} formattedDuration={formatDuration(duration)} />}
-      {isPaused && <PauseOverlay togglePause={toggleIsRunning} />}
+      {isPaused && <PauseOverlay togglePause={() => (isRunning ? pause() : start())} />}
       <p>
         <Link to="/settings">Settings</Link>
       </p>
