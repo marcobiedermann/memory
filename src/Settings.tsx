@@ -31,7 +31,7 @@ function SettingsPage() {
     <>
       <h1>Settings</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="form">
-        <div>
+        <fieldset>
           <legend className="form__legend">Difficulty</legend>
           <div className="form__fields">
             <div className="form__field">
@@ -47,8 +47,8 @@ function SettingsPage() {
               <input id="hard" type="radio" value="hard" {...register('difficulty')} />
             </div>
           </div>
-        </div>
-        <div>
+        </fieldset>
+        <fieldset>
           <legend className="form__legend">Symbols</legend>
           <div className="form__fields">
             <div className="form__field">
@@ -60,7 +60,7 @@ function SettingsPage() {
               <input id="numbers" type="radio" value="numbers" {...register('symbols')} />
             </div>
           </div>
-        </div>
+        </fieldset>
         <div className="form__field">
           <label htmlFor="showTimer">Show Timer</label>
           <input type="checkbox" {...register('showTimer')} />
