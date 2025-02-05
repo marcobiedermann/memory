@@ -88,7 +88,7 @@ h1 {
 
 .cards {
   display: grid;
-  gap: 0.5%;
+  gap: 0.5em;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -96,6 +96,7 @@ h1 {
 
 .card {
   aspect-ratio: 1;
+  display: block;
   font-size: 4rem;
   perspective: 1000px;
   width: 100%;
