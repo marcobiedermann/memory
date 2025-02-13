@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 import { update } from './slices/settings';
 import { RootState } from './store';
@@ -17,6 +17,7 @@ type FormData = z.infer<typeof formDataSchema>;
 function SettingsPage() {
   const dispatch = useDispatch();
   const settings = useSelector((state: RootState) => state.settings);
+  const navigate = useNavigate();
 
   const { handleSubmit, register } = useForm<FormData>({
     defaultValues: settings,
@@ -25,6 +26,7 @@ function SettingsPage() {
 
   function onSubmit(data: FormData) {
     dispatch(update(data));
+    navigate('/');
   }
 
   return (
