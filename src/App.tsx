@@ -1,5 +1,6 @@
 import { shuffle } from 'lodash-es';
 import { useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Cards from './components/Cards';
@@ -31,6 +32,7 @@ const PAIR_LENGTH = 2;
 
 function App() {
   const settings = useSelector((state: RootState) => state.settings);
+  const { t } = useTranslation();
 
   const generatedCards = useMemo(() => generateCards(), [settings]);
   const {
@@ -60,21 +62,27 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Memory Game</h1>
+      <h1>{t('game.title')}</h1>
 
       <div className="game-info">
-        {settings.showTimer && <div>Time: {formatDuration(duration)}</div>}
-        <div>Moves: {moves}</div>
+        {settings.showTimer && (
+          <div>
+            {t('time')}: {formatDuration(duration)}
+          </div>
+        )}
         <div>
-          Matches: {matches}/{cards.length / PAIR_LENGTH}
+          {t('moves')}: {moves}
+        </div>
+        <div>
+          {t('matches')}: {matches}/{cards.length / PAIR_LENGTH}
         </div>
         {settings.showTimer && (
           <button onClick={() => (isRunning ? pause() : start())} className="button">
-            {isRunning ? 'Pause' : 'Resume'}
+            {isRunning ? t('timer.pause') : t('timer.resume')}
           </button>
         )}
         <button onClick={initializeGame} className="button">
-          New Game
+          {t('game.new')}
         </button>
       </div>
 
@@ -90,7 +98,7 @@ function App() {
       {isEveryCardMatched(cards) && <WinMessage moves={moves} formattedDuration={formatDuration(duration)} />}
       {isPaused && <PauseOverlay togglePause={() => (isRunning ? pause() : start())} />}
       <p>
-        <Link to="/settings">Settings</Link>
+        <Link to="/settings">{t('settings.title')}</Link>
       </p>
     </div>
   );

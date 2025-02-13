@@ -1,0 +1,26 @@
+{
+  "emojis": "Emojis",
+  "numbers": "Numbers",
+  "symbols": "Symbols",
+  "difficulty": "Difficulty",
+  "easy": "Easy",
+  "medium": "Medium",
+  "hard": "Hard",
+  "back": "Back",
+  "moves": "Moves",
+  "matches": "Matches",
+  "time": "Time",
+  "game": {
+    "title": "Memory Game",
+    "new": "New Game"
+  },
+  "timer": {
+    "resume": "Resume",
+    "pause": "Pause"
+  },
+  "settings": {
+    "title": "Settings",
+    "save": "Save Settings",
+    "showTimer": "Show Timer"
+  }
+}

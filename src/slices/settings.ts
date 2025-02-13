@@ -2,13 +2,13 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface SettingsState {
   difficulty: 'easy' | 'medium' | 'hard';
-  symbols: 'emojies' | 'numbers';
+  symbols: 'emojis' | 'numbers';
   showTimer: boolean;
 }
 
 const initialState: SettingsState = {
   difficulty: 'easy',
-  symbols: 'emojies',
+  symbols: 'emojis',
   showTimer: true,
 };
 
