@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -9,7 +10,7 @@ import { RootState } from './store';
 const formDataSchema = z.object({
   difficulty: z.enum(['easy', 'medium', 'hard']),
   showTimer: z.boolean(),
-  symbols: z.enum(['numbers', 'emojies']),
+  symbols: z.enum(['numbers', 'emojis']),
 });
 
 type FormData = z.infer<typeof formDataSchema>;
@@ -18,6 +19,7 @@ function SettingsPage() {
   const dispatch = useDispatch();
   const settings = useSelector((state: RootState) => state.settings);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const { handleSubmit, register } = useForm<FormData>({
     defaultValues: settings,
@@ -31,50 +33,50 @@ function SettingsPage() {
 
   return (
     <>
-      <h1>Settings</h1>
+      <h1>{t('settings.title')}</h1>
       <form onSubmit={handleSubmit(onSubmit)} className="form">
         <fieldset>
-          <legend className="form__legend">Difficulty</legend>
+          <legend className="form__legend">{t('difficulty')}</legend>
           <div className="form__fields">
             <div className="form__field">
-              <label htmlFor="easy">Easy</label>
+              <label htmlFor="easy">{t('easy')}</label>
               <input id="easy" type="radio" value="easy" {...register('difficulty')} />
             </div>
             <div className="form__field">
-              <label htmlFor="medium">Medium</label>
+              <label htmlFor="medium">{t('medium')}</label>
               <input id="medium" type="radio" value="medium" {...register('difficulty')} />
             </div>
             <div className="form__field">
-              <label htmlFor="hard">Hard</label>
+              <label htmlFor="hard">{t('hard')}</label>
               <input id="hard" type="radio" value="hard" {...register('difficulty')} />
             </div>
           </div>
         </fieldset>
         <fieldset>
-          <legend className="form__legend">Symbols</legend>
+          <legend className="form__legend">{t('symbols')}</legend>
           <div className="form__fields">
             <div className="form__field">
-              <label htmlFor="easy">Emojies</label>
-              <input id="emojies" type="radio" value="emojies" {...register('symbols')} />
+              <label htmlFor="easy">{t('emojis')}</label>
+              <input id="emojis" type="radio" value="emojis" {...register('symbols')} />
             </div>
             <div className="form__field">
-              <label htmlFor="numbers">Numbers</label>
+              <label htmlFor="numbers">{t('numbers')}</label>
               <input id="numbers" type="radio" value="numbers" {...register('symbols')} />
             </div>
           </div>
         </fieldset>
         <div className="form__field">
-          <label htmlFor="showTimer">Show Timer</label>
+          <label htmlFor="showTimer">{t('settings.showTimer')}</label>
           <input type="checkbox" {...register('showTimer')} />
         </div>
         <div>
           <button type="submit" className="button">
-            Save Settings
+            {t('settings.save')}
           </button>
         </div>
       </form>
       <p>
-        <Link to="/">Back</Link>
+        <Link to="/">{t('back')}</Link>
       </p>
     </>
   );
