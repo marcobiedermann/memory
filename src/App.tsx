@@ -2,7 +2,7 @@ import { shuffle } from 'lodash-es';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import Cards from './components/Cards';
 import PauseOverlay from './components/PauseOverlay';
 import WinMessage from './components/WinMessage';
@@ -98,7 +98,7 @@ function App() {
       {isEveryCardMatched(cards) && <WinMessage moves={moves} formattedDuration={formatDuration(duration)} />}
       {isPaused && <PauseOverlay togglePause={() => (isRunning ? pause() : start())} />}
       <p>
-        <Link to="/settings">{t('settings.title')}</Link>
+        <Link to="../settings">{t('settings.title')}</Link>
       </p>
     </div>
   );

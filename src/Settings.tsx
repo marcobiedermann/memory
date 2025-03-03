@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import { z } from 'zod';
 import { update } from './slices/settings';
 import { RootState } from './store';
@@ -76,7 +76,7 @@ function SettingsPage() {
         </div>
       </form>
       <p>
-        <Link to="/">{t('back')}</Link>
+        <Link to="../">{t('back')}</Link>
       </p>
     </>
   );
