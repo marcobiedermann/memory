@@ -10,7 +10,7 @@ import { RootState } from './store';
 const formDataSchema = z.object({
   difficulty: z.enum(['easy', 'medium', 'hard']),
   showTimer: z.boolean(),
-  symbols: z.enum(['numbers', 'emojis']),
+  symbols: z.enum(['numbers', 'emojis', 'frozen']),
 });
 
 type FormData = z.infer<typeof formDataSchema>;
@@ -62,6 +62,10 @@ function SettingsPage() {
             <div className="form__field">
               <label htmlFor="numbers">{t('numbers')}</label>
               <input id="numbers" type="radio" value="numbers" {...register('symbols')} />
+            </div>
+            <div className="form__field">
+              <label htmlFor="frozen">Frozen</label>
+              <input id="frozen" type="radio" value="frozen" {...register('symbols')} />
             </div>
           </div>
         </fieldset>

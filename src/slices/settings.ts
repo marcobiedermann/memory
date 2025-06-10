@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 export interface SettingsState {
   difficulty: 'easy' | 'medium' | 'hard';
-  symbols: 'emojis' | 'numbers';
+  symbols: 'emojis' | 'numbers' | 'frozen';
   showTimer: boolean;
 }
 
