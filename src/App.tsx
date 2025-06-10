@@ -34,7 +34,7 @@ function App() {
   const settings = useSelector((state: RootState) => state.settings);
   const { t } = useTranslation();
 
-  const generatedCards = useMemo(() => generateCards(), [settings]);
+  const generatedCards = useMemo(() => generateCards(12), [settings]);
   const {
     cards,
     isChecking,
